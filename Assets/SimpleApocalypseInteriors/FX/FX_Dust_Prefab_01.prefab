@@ -25,9 +25,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 175590}
-  m_LocalRotation: {x: -0.5492538, y: -0.11919686, z: -0.079522625, w: 0.8232792}
-  m_LocalPosition: {x: -3.35, y: 5.876, z: 1.608}
-  m_LocalScale: {x: 1.5863265, y: 2.8641388, z: 0.43392536}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -4668,13 +4668,13 @@ ParticleSystemRenderer:
   m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 0
-  m_ReflectionProbeUsage: 1
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 716259ae41e9d754080fa2e74a742fdf, type: 2}
+  - {fileID: 2100000, guid: 040cfa3c61ad57946ae16c627e338920, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
