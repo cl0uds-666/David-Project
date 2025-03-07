@@ -62,7 +62,15 @@ public class Pistol : MonoBehaviour
 
         if (muzzleFlash != null)
         {
-            muzzleFlash.Play();
+            muzzleFlash.Play(); // Play muzzle flash
+            StartCoroutine(StopMuzzleFlash()); // Stop after a short delay
+        }
+
+        // Trigger light flicker
+        WFX_LightFlicker lightFlicker = GetComponentInChildren<WFX_LightFlicker>();
+        if (lightFlicker != null)
+        {
+            lightFlicker.StartFlicker();
         }
 
         if (gunAudio != null && shootClip != null)
@@ -89,8 +97,15 @@ public class Pistol : MonoBehaviour
             Debug.LogWarning("No camera assigned to Pistol script!");
         }
 
-        UpdateAmmoUI(); // Update ammo count in UI
+        UpdateAmmoUI();
     }
+
+    IEnumerator StopMuzzleFlash()
+    {
+        yield return new WaitForSeconds(0.1f);
+        muzzleFlash.Stop();
+    }
+
 
     IEnumerator Reload()
     {

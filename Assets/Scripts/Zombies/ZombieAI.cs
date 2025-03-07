@@ -17,19 +17,30 @@ public class ZombieAI : MonoBehaviour
     public float attackCooldown = 1.5f;
     private float lastAttackTime;
 
+    [Header("Zombie Sounds")]
+    public AudioSource audioSource;
+    public AudioClip[] zombieSounds;
+    public float minSoundInterval = 3f;
+    public float maxSoundInterval = 8f;
+    private float nextSoundTime;
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         GameObject player = GameObject.FindGameObjectWithTag("Player");
+
         if (player != null)
         {
             target = player.transform;
         }
+
+        // Set first random sound time
+        nextSoundTime = Time.time + Random.Range(minSoundInterval, maxSoundInterval);
     }
 
     void Update()
     {
-        if (isDead || agent == null || !agent.enabled) return; // Prevent errors after death
+        if (isDead || agent == null || !agent.enabled) return;
 
         if (target != null && agent.enabled)
         {
@@ -45,7 +56,7 @@ public class ZombieAI : MonoBehaviour
 
                 Vector3 newTargetPosition = target.position + randomOffset;
 
-                if (agent.isOnNavMesh) // Check if the agent is on a valid NavMesh
+                if (agent.isOnNavMesh)
                 {
                     agent.SetDestination(newTargetPosition);
                 }
@@ -57,6 +68,8 @@ public class ZombieAI : MonoBehaviour
                 TryAttack();
             }
         }
+
+        PlayRandomZombieSound();
     }
 
     void TryAttack()
@@ -76,6 +89,16 @@ public class ZombieAI : MonoBehaviour
         }
     }
 
+    void PlayRandomZombieSound()
+    {
+        if (Time.time >= nextSoundTime && zombieSounds.Length > 0 && audioSource != null)
+        {
+            AudioClip randomClip = zombieSounds[Random.Range(0, zombieSounds.Length)];
+            audioSource.PlayOneShot(randomClip);
+            nextSoundTime = Time.time + Random.Range(minSoundInterval, maxSoundInterval);
+        }
+    }
+
     public void Die()
     {
         if (isDead) return;
@@ -83,10 +106,9 @@ public class ZombieAI : MonoBehaviour
 
         if (agent != null && agent.enabled)
         {
-            agent.enabled = false; // Disable NavMeshAgent before physics takes over
+            agent.enabled = false;
         }
 
-        // Disable AI script to stop further updates
         this.enabled = false;
     }
 }
