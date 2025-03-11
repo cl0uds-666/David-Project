@@ -83,12 +83,19 @@ public class Pistol : MonoBehaviour
         {
             if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, range))
             {
-                Debug.Log("Pistol hit: " + hit.transform.name);
-
                 EnemyHealth enemy = hit.transform.GetComponent<EnemyHealth>();
                 if (enemy != null)
                 {
-                    enemy.TakeDamage(damage);
+                    // Find the player's points system
+                    PlayerPoints playerPoints = FindObjectOfType<PlayerPoints>();
+                    if (playerPoints != null)
+                    {
+                        enemy.TakeDamage(damage, playerPoints);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("PlayerPoints system not found!");
+                    }
                 }
             }
         }

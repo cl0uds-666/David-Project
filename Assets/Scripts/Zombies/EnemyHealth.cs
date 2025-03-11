@@ -5,6 +5,8 @@ public class EnemyHealth : MonoBehaviour
 {
     public float maxHealth = 100f;
     private float currentHealth;
+    public int pointsPerHit = 10;
+    public int pointsOnKill = 100;
 
     public event Action onDeath;
     private bool isDead = false;
@@ -40,20 +42,26 @@ public class EnemyHealth : MonoBehaviour
         SetRagdollState(false);
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(float amount, PlayerPoints playerPoints)
     {
         if (isDead) return;
 
         currentHealth -= amount;
         Debug.Log(gameObject.name + " took " + amount + " damage. Current HP: " + currentHealth);
 
+        if (playerPoints != null)
+        {
+            playerPoints.AddPoints(pointsPerHit); // Points per hit
+        }
+
+
         if (currentHealth <= 0)
         {
-            Die();
+            Die(playerPoints);
         }
     }
 
-    void Die()
+    void Die(PlayerPoints playerPoints)
     {
         if (isDead) return;
         isDead = true;
@@ -74,6 +82,11 @@ public class EnemyHealth : MonoBehaviour
 
         // Enable Ragdoll physics
         SetRagdollState(true);
+
+        if (playerPoints != null)
+        {
+            playerPoints.AddPoints(pointsOnKill); // Extra points on kill
+        }
 
         // Destroy after a while (optional)
         Destroy(gameObject, 10f);

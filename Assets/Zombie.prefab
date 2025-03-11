@@ -3797,7 +3797,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 99d2ef3d20205814a8a17eaa8ad7534d, type: 3}
   - {fileID: 8300000, guid: 1d211afbfffea774fa716f46e490ddc2, type: 3}
   minSoundInterval: 3
-  maxSoundInterval: 8
+  maxSoundInterval: 120
 --- !u!65 &6768869565277704070
 BoxCollider:
   m_ObjectHideFlags: 0
