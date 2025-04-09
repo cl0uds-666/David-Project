@@ -84,10 +84,11 @@ public class ZombieAI : MonoBehaviour
             PlayerHealth playerHealth = target.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(attackDamage);
+                playerHealth.TakeDamage(50f);
             }
         }
     }
+
 
     void PlayRandomZombieSound()
     {
