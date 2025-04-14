@@ -7,16 +7,9 @@ public class TimeRewindManager : MonoBehaviour
     public KeyCode rewindKey = KeyCode.Q;
     private bool isRewinding = false;
 
-    private void Start()
-    {
-        rewindables = FindObjectsOfType<MonoBehaviour>(true).OfType<IRewindable>().ToArray();
-    }
-
     private void Update()
     {
-        // Find all objects implementing IRewindable (Spawning Zombies)
         rewindables = FindObjectsOfType<MonoBehaviour>(true).OfType<IRewindable>().ToArray();
-
 
         if (Input.GetKeyDown(rewindKey))
         {
@@ -31,8 +24,12 @@ public class TimeRewindManager : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (rewindables == null) return;
+
         foreach (var rewindable in rewindables)
         {
+            if (rewindable == null) continue; // Skip destroyed/null objects
+
             if (isRewinding)
             {
                 rewindable.Rewind();
@@ -44,15 +41,22 @@ public class TimeRewindManager : MonoBehaviour
         }
     }
 
+
     private void StartRewind()
     {
         isRewinding = true;
         Debug.Log("Rewinding World...");
+
+        PlayerHealth player = FindObjectOfType<PlayerHealth>();
+        if (player != null) player.isInvincible = true;
     }
 
     private void StopRewind()
     {
         isRewinding = false;
         Debug.Log("Stopped Rewind.");
+
+        PlayerHealth player = FindObjectOfType<PlayerHealth>();
+        if (player != null) player.isInvincible = false;
     }
 }

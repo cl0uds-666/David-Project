@@ -6,10 +6,13 @@ public class PlayerHealth : MonoBehaviour
 {
     public float maxHealth = 100f;
     private float currentHealth;
-    public float regenDelay = 3f; // Time before regen starts
-    public float regenRate = 10f; // HP per second when regenerating
+    public float regenDelay = 3f;
+    public float regenRate = 10f;
 
     private bool isRegenerating = false;
+    public bool isInvincible = false; // Invincibility toggle
+
+    public Transform respawnPoint;
 
     void Start()
     {
@@ -26,9 +29,10 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = health;
     }
 
-
     public void TakeDamage(float damage)
     {
+        if (isInvincible) return; // Can't take damage while rewinding
+
         currentHealth -= damage;
         Debug.Log("Player took " + damage + " damage. Current HP: " + currentHealth);
 
@@ -53,7 +57,7 @@ public class PlayerHealth : MonoBehaviour
         while (currentHealth < maxHealth)
         {
             currentHealth += regenRate * Time.deltaTime;
-            currentHealth = Mathf.Min(currentHealth, maxHealth); // Prevent overhealing
+            currentHealth = Mathf.Min(currentHealth, maxHealth);
             yield return null;
         }
 
@@ -61,13 +65,10 @@ public class PlayerHealth : MonoBehaviour
         isRegenerating = false;
     }
 
-    public Transform respawnPoint;
-
     void Die()
     {
         Debug.Log("Player Died! Respawning...");
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        currentHealth = maxHealth; // Reset health
+        currentHealth = maxHealth;
     }
-
 }
