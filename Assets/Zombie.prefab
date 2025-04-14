@@ -3644,6 +3644,7 @@ GameObject:
   - component: {fileID: 2015099502841667492}
   - component: {fileID: 6768869565277704070}
   - component: {fileID: -1182273591511817460}
+  - component: {fileID: 171702516413323774}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Zombie
@@ -3773,6 +3774,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  pointsPerHit: 10
+  pointsOnKill: 100
   hitboxCollider: {fileID: 6768869565277704070}
 --- !u!114 &2015099502841667492
 MonoBehaviour:
@@ -3915,6 +3918,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &171702516413323774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5001877697202797388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abe456c2c9d1c4a458f2988e5a35f172, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rewindDuration: 5
 --- !u!1 &5056003299218606277
 GameObject:
   m_ObjectHideFlags: 0
