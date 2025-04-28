@@ -11,7 +11,6 @@ public class WeaponManager : MonoBehaviour
 
     void Start()
     {
-        // Equip the first weapon in your list (e.g. pistol)
         if (allWeaponObjects.Count > 0)
         {
             AddWeapon(allWeaponObjects[0]);
@@ -21,7 +20,19 @@ public class WeaponManager : MonoBehaviour
         {
             Debug.LogWarning("No weapons assigned to WeaponManager.");
         }
+
+        // TEMP FOR TESTING: Add Sledgehammer
+        foreach (GameObject weapon in allWeaponObjects)
+        {
+            if (weapon != null && weapon.name.ToLower().Contains("sledge"))
+            {
+                AddWeapon(weapon);
+                Debug.Log("Added Sledgehammer for testing.");
+                break;
+            }
+        }
     }
+
 
     void Update()
     {

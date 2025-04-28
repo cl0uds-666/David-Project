@@ -61,4 +61,10 @@ public class ZombieSpawner : MonoBehaviour
         yield return new WaitForSeconds(3f); // Small delay before next round
         StartNextRound();
     }
+
+    public int GetCurrentRound()
+    {
+        return currentRound;
+    }
+
 }

@@ -33,6 +33,15 @@ public class Pistol : MonoBehaviour
     public Transform defaultRotation;     // Normal resting rotation
     public float reloadRotateSpeed = 5f;  // Speed of rotation lerp
 
+    [Header("Aiming")]
+    public Transform aimPosition;
+    public Transform aimRotation;
+    public float aimMoveSpeed = 10f;
+    public float aimRotateSpeed = 10f;
+
+    private bool isAiming = false;
+
+
 
     [Header("UI")]
     public TextMeshProUGUI ammoText;
@@ -47,6 +56,8 @@ public class Pistol : MonoBehaviour
     void Update()
     {
         if (isReloading) return;
+
+        HandleAiming();
 
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -65,6 +76,7 @@ public class Pistol : MonoBehaviour
             Shoot();
         }
     }
+
 
     void Shoot()
     {
@@ -165,6 +177,33 @@ public class Pistol : MonoBehaviour
         obj.localPosition = targetLocalPos;
         obj.localRotation = targetLocalRot;
     }
+
+    void HandleAiming()
+    {
+        if (Input.GetButton("Fire2")) // Right Mouse Button held
+        {
+            isAiming = true;
+        }
+        else
+        {
+            isAiming = false;
+        }
+
+        if (modelTransform != null)
+        {
+            if (isAiming)
+            {
+                modelTransform.localPosition = Vector3.Lerp(modelTransform.localPosition, aimPosition.localPosition, aimMoveSpeed * Time.deltaTime);
+                modelTransform.localRotation = Quaternion.Lerp(modelTransform.localRotation, aimRotation.localRotation, aimRotateSpeed * Time.deltaTime);
+            }
+            else
+            {
+                modelTransform.localPosition = Vector3.Lerp(modelTransform.localPosition, defaultPosition.localPosition, aimMoveSpeed * Time.deltaTime);
+                modelTransform.localRotation = Quaternion.Lerp(modelTransform.localRotation, defaultRotation.localRotation, aimRotateSpeed * Time.deltaTime);
+            }
+        }
+    }
+
 
 
     void UpdateAmmoUI()

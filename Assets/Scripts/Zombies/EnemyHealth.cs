@@ -4,9 +4,9 @@ using System;
 public class EnemyHealth : MonoBehaviour
 {
     public float maxHealth = 100f;
-    private float currentHealth;
+    public float currentHealth;
     public int pointsPerHit = 10;
-    public int pointsOnKill = 100;
+    public int pointsOnKill = 50;
 
     public event Action onDeath;
     private bool isDead = false;
@@ -21,7 +21,6 @@ public class EnemyHealth : MonoBehaviour
 
     void Start()
     {
-        currentHealth = maxHealth;
         animator = GetComponent<Animator>();
         agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
 
@@ -29,17 +28,21 @@ public class EnemyHealth : MonoBehaviour
         ragdollBodies = GetComponentsInChildren<Rigidbody>();
         ragdollColliders = GetComponentsInChildren<Collider>();
 
-        // Ensure all ragdoll rigidbodies are kinematic initially
+        // Set up ragdoll
         foreach (Rigidbody rb in ragdollBodies)
         {
             rb.isKinematic = true;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-            rb.mass = 1f; // Prevents excessive physics force
-            rb.drag = 0.1f; // Small drag to avoid wild movement
+            rb.mass = 1f;
+            rb.drag = 0.1f;
         }
 
         SetRagdollState(false);
+
+        // Dynamic Health based on round
+        int currentRound = FindObjectOfType<ZombieSpawner>()?.GetCurrentRound() ?? 1;
+        currentHealth = CalculateHealthForRound(currentRound);
     }
 
     public void TakeDamage(float amount, PlayerPoints playerPoints)
@@ -51,9 +54,8 @@ public class EnemyHealth : MonoBehaviour
 
         if (playerPoints != null)
         {
-            playerPoints.AddPoints(pointsPerHit); // Points per hit
+            playerPoints.AddPoints(pointsPerHit);
         }
-
 
         if (currentHealth <= 0)
         {
@@ -68,27 +70,16 @@ public class EnemyHealth : MonoBehaviour
 
         onDeath?.Invoke();
 
-        // Disable AI movement
-        if (agent != null)
-        {
-            agent.enabled = false;
-        }
+        if (agent != null) agent.enabled = false;
+        if (animator != null) animator.enabled = false;
 
-        // Disable animations
-        if (animator != null)
-        {
-            animator.enabled = false;
-        }
-
-        // Enable Ragdoll physics
         SetRagdollState(true);
 
         if (playerPoints != null)
         {
-            playerPoints.AddPoints(pointsOnKill); // Extra points on kill
+            playerPoints.AddPoints(pointsOnKill);
         }
 
-        // Destroy after a while (optional)
         Destroy(gameObject, 10f);
     }
 
@@ -96,15 +87,38 @@ public class EnemyHealth : MonoBehaviour
     {
         foreach (Rigidbody rb in ragdollBodies)
         {
-            rb.isKinematic = !state; // Enable physics
+            rb.isKinematic = !state;
         }
 
         foreach (Collider col in ragdollColliders)
         {
-            if (col != hitboxCollider) // Keep hitbox active
+            if (col != hitboxCollider)
             {
                 col.enabled = state;
             }
+        }
+    }
+
+    private float CalculateHealthForRound(int round)
+    {
+        float baseHealth = maxHealth;
+
+        if (round <= 10)
+        {
+            return baseHealth + (round - 1) * 75f;
+        }
+        else if (round <= 20)
+        {
+            return baseHealth + (9 * 75f) + (round - 10) * 150f;
+        }
+        else if (round <= 40)
+        {
+            float healthAt20 = baseHealth + (9 * 75f) + (10 * 150f);
+            return healthAt20 * Mathf.Pow(1.15f, round - 20);
+        }
+        else
+        {
+            return 5000f; // Hard cap at round 40
         }
     }
 }
