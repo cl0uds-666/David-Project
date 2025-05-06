@@ -1,64 +1,84 @@
 using UnityEngine;
 using System.Collections;
-using TMPro; // Import TMP
+using TMPro;
 
 public class ZombieSpawner : MonoBehaviour
 {
     [Header("Spawning Settings")]
     public GameObject zombiePrefab;
     public Transform[] spawnPoints;
-    public int baseZombiesPerRound = 6; // Initial zombies in Round 1
+    public int baseZombiesPerRound = 6;
     public float spawnDelay = 2f;
 
-    [Header("Round Settings")]
-    public TextMeshProUGUI roundText; // Use TMP instead of UI Text
+    [Header("Round UI")]
+    public TextMeshProUGUI roundText;
+
     private int currentRound = 0;
-    private int zombiesRemaining;
-    private int zombiesToSpawn;
+    private int killsNeeded = 0;   // player kills required this round
+    private int killsSoFar = 0;   // player kills achieved
+    private int aliveZombies = 0;   // total zombies currently alive
 
     void Start()
     {
         StartNextRound();
     }
 
+    // -------------------------------------------------
     void StartNextRound()
     {
         currentRound++;
-        roundText.text = "Round " + currentRound; // Update TMP UI
-        zombiesToSpawn = baseZombiesPerRound + (currentRound * 2); // Increase zombies per round
-        zombiesRemaining = zombiesToSpawn;
+        roundText.text = "Round " + currentRound;
+
+        killsNeeded = baseZombiesPerRound + (currentRound * 2);
+        killsSoFar = 0;
+        aliveZombies = 0;
 
         StartCoroutine(SpawnZombies());
     }
 
     IEnumerator SpawnZombies()
     {
-        for (int i = 0; i < zombiesToSpawn; i++)
+        for (int i = 0; i < killsNeeded; i++)
         {
-            Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
-            GameObject newZombie = Instantiate(zombiePrefab, spawnPoint.position, spawnPoint.rotation);
-
-            // Track zombie deaths
-            newZombie.GetComponent<EnemyHealth>().onDeath += ZombieDied;
-
+            SpawnZombie();
             yield return new WaitForSeconds(spawnDelay);
         }
     }
 
-    void ZombieDied()
-    {
-        zombiesRemaining--;
 
-        // When all zombies are dead, start the next round
-        if (zombiesRemaining <= 0)
+    void SpawnZombie()
+    {
+        Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        GameObject z = Instantiate(zombiePrefab, sp.position, sp.rotation);
+
+        EnemyHealth eh = z.GetComponent<EnemyHealth>();
+        eh.onDeath += ZombieDied;
+
+        aliveZombies++;
+    }
+
+    // -------------------------------------------------
+    void ZombieDied(EnemyHealth z, bool countAsKill)
+    {
+        aliveZombies--;
+
+        if (countAsKill)
         {
-            StartCoroutine(WaitForNextRound());
+            killsSoFar++;
         }
+        else
+        {
+            SpawnZombie();
+        }
+
+        // start next round only when required kills met AND no zombies alive
+        if (killsSoFar >= killsNeeded && aliveZombies <= 0)
+            StartCoroutine(WaitForNextRound());
     }
 
     IEnumerator WaitForNextRound()
     {
-        yield return new WaitForSeconds(3f); // Small delay before next round
+        yield return new WaitForSeconds(3f);
         StartNextRound();
     }
 
@@ -66,5 +86,4 @@ public class ZombieSpawner : MonoBehaviour
     {
         return currentRound;
     }
-
 }

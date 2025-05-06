@@ -8,7 +8,13 @@ public class EnemyHealth : MonoBehaviour
     public int pointsPerHit = 10;
     public int pointsOnKill = 50;
 
-    public event Action onDeath;
+
+
+
+    public float lifeTime = 60f;
+
+    public event Action<EnemyHealth, bool> onDeath;
+    private bool expiredByTimer = false;
     private bool isDead = false;
 
     private Rigidbody[] ragdollBodies;
@@ -16,11 +22,15 @@ public class EnemyHealth : MonoBehaviour
     private Animator animator;
     private UnityEngine.AI.NavMeshAgent agent;
 
+    private float spawnTime;
+
     [Header("Hitbox Collider (Used for Damage Detection)")]
     public Collider hitboxCollider;
 
     void Start()
     {
+        spawnTime = Time.time;
+
         animator = GetComponent<Animator>();
         agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
 
@@ -45,6 +55,22 @@ public class EnemyHealth : MonoBehaviour
         currentHealth = CalculateHealthForRound(currentRound);
     }
 
+    void Update()                     
+    {
+        if (!isDead && Time.time - spawnTime >= lifeTime)
+        {
+            ForceExpire();
+        }
+    }
+
+    void ForceExpire()
+    {
+        if (isDead) return;
+        expiredByTimer = true;
+        TakeDamage(currentHealth + 1f, null);
+    }
+
+
     public void TakeDamage(float amount, PlayerPoints playerPoints)
     {
         if (isDead) return;
@@ -68,7 +94,9 @@ public class EnemyHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        onDeath?.Invoke();
+        bool countAsKill = !expiredByTimer;
+        onDeath?.Invoke(this, countAsKill);
+
 
         if (agent != null) agent.enabled = false;
         if (animator != null) animator.enabled = false;

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 public class ZombieAI : MonoBehaviour
@@ -41,6 +41,26 @@ public class ZombieAI : MonoBehaviour
     void Update()
     {
         if (isDead || agent == null || !agent.enabled) return;
+
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + Vector3.up * 0.6f,   // eye‑height
+                            transform.forward,
+                            out hit,
+                            1.2f))
+        {
+            BarrierWindow window = hit.transform.GetComponentInParent<BarrierWindow>();
+            if (window != null && window.HasAnyPlanks())
+            {
+                agent.isStopped = true;          // stop walking while ripping
+                window.ZombieStartRemoving();    // start coroutine on window
+                return;                          // skip rest of Update this frame
+            }
+        }
+        else
+        {
+            // make sure the agent can move again after planks are gone
+            agent.isStopped = false;
+        }
 
         if (target != null && agent.enabled)
         {
