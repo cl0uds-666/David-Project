@@ -13,30 +13,17 @@ public class WeaponManager : MonoBehaviour
     {
         if (allWeaponObjects.Count > 0)
         {
-            AddWeapon(allWeaponObjects[0]);
+            AddWeapon(allWeaponObjects[0]); // First weapon (pistol)
             EquipWeapon(0);
         }
         else
         {
-            Debug.LogWarning("No weapons assigned to WeaponManager.");
-        }
-
-        // TEMP FOR TESTING: Add Sledgehammer
-        foreach (GameObject weapon in allWeaponObjects)
-        {
-            if (weapon != null && weapon.name.ToLower().Contains("sledge"))
-            {
-                AddWeapon(weapon);
-                Debug.Log("Added Sledgehammer for testing.");
-                break;
-            }
+            Debug.LogWarning("WeaponManager: No weapons assigned in allWeaponObjects.");
         }
     }
 
-
     void Update()
     {
-        // Switch weapons with number keys (1 and 2)
         if (Input.GetKeyDown(KeyCode.Alpha1)) SwitchToSlot(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) SwitchToSlot(1);
     }
@@ -45,46 +32,47 @@ public class WeaponManager : MonoBehaviour
     {
         if (weaponObject == null)
         {
-            Debug.LogWarning("Tried to add a null weapon.");
+            Debug.LogWarning("WeaponManager: Tried to add a null weapon.");
             return;
         }
 
         if (ownedWeapons.Contains(weaponObject))
         {
-            Debug.Log("Player already owns: " + weaponObject.name);
+            Debug.Log("WeaponManager: Player already owns " + weaponObject.name);
+            EquipWeapon(ownedWeapons.IndexOf(weaponObject));
             return;
         }
 
         if (ownedWeapons.Count < 2)
         {
             ownedWeapons.Add(weaponObject);
+            Debug.Log("WeaponManager: Added new weapon: " + weaponObject.name);
         }
         else
         {
-            // Replace the current weapon if inventory is full
+            Debug.Log("WeaponManager: Replacing weapon in slot " + currentWeaponIndex + " with " + weaponObject.name);
             ownedWeapons[currentWeaponIndex].SetActive(false);
             ownedWeapons[currentWeaponIndex] = weaponObject;
         }
 
         EquipWeapon(ownedWeapons.IndexOf(weaponObject));
+        Debug.Log("WeaponManager: Equipped weapon: " + weaponObject.name);
     }
 
     private void EquipWeapon(int slot)
     {
         if (slot < 0 || slot >= ownedWeapons.Count)
         {
-            Debug.LogWarning("Tried to equip invalid weapon slot: " + slot);
+            Debug.LogWarning("WeaponManager: Tried to equip invalid slot: " + slot);
             return;
         }
 
-        // Disable all weapons first
         foreach (GameObject weapon in allWeaponObjects)
         {
             if (weapon != null)
                 weapon.SetActive(false);
         }
 
-        // Enable selected weapon
         ownedWeapons[slot].SetActive(true);
         currentWeaponIndex = slot;
     }

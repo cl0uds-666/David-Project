@@ -3774,8 +3774,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  currentHealth: 0
   pointsPerHit: 10
   pointsOnKill: 100
+  lifeTime: 60
+  hitMarkerPrefab: {fileID: 294493262615084007, guid: 48074039493eb3f4e93b2c06697d8629, type: 3}
+  bloodFXPrefab: {fileID: 194062, guid: 3e2d743598909394d8f1cc18f380fba9, type: 3}
   hitboxCollider: {fileID: 6768869565277704070}
 --- !u!114 &2015099502841667492
 MonoBehaviour:

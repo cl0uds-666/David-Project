@@ -24,6 +24,11 @@ public class EnemyHealth : MonoBehaviour
 
     private float spawnTime;
 
+    [Header("Hit FX")]
+    public GameObject hitMarkerPrefab;
+    public GameObject bloodFXPrefab;
+
+
     [Header("Hitbox Collider (Used for Damage Detection)")]
     public Collider hitboxCollider;
 
@@ -76,18 +81,31 @@ public class EnemyHealth : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= amount;
-        Debug.Log(gameObject.name + " took " + amount + " damage. Current HP: " + currentHealth);
 
         if (playerPoints != null)
-        {
             playerPoints.AddPoints(pointsPerHit);
+
+        // --- Spawn floating hit marker ---
+        if (hitMarkerPrefab != null)
+        {
+            GameObject marker = Instantiate(hitMarkerPrefab, transform.position + Vector3.up * 1.5f, Quaternion.identity);
+            HitMarkerWorld hm = marker.GetComponent<HitMarkerWorld>();
+            if (hm != null)
+                hm.SetPoints(pointsPerHit);
         }
 
-        if (currentHealth <= 0)
+        // --- Spawn blood FX ---
+        if (bloodFXPrefab != null)
         {
-            Die(playerPoints);
+            GameObject blood = Instantiate(bloodFXPrefab, transform.position + Vector3.up * 1.2f, Quaternion.identity);
+            ParticleSystem ps = blood.GetComponent<ParticleSystem>();
+            if (ps != null) ps.Play();
         }
+
+            if (currentHealth <= 0f)
+            Die(playerPoints);
     }
+
 
     void Die(PlayerPoints playerPoints)
     {
