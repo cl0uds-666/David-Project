@@ -36,12 +36,40 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
-        if (ownedWeapons.Contains(weaponObject))
+        // Try to match against known weapon references
+        GameObject realWeapon = allWeaponObjects.Find(w => w.name == weaponObject.name);
+
+        if (realWeapon == null)
         {
-            Debug.Log("WeaponManager: Player already owns " + weaponObject.name);
-            EquipWeapon(ownedWeapons.IndexOf(weaponObject));
+            Debug.LogWarning("WeaponManager: MysteryBox weapon not found in allWeaponObjects. Trying to add it anyway...");
+            realWeapon = weaponObject;
+        }
+        else
+        {
+            Debug.Log("WeaponManager: Using matched prefab from allWeaponObjects: " + realWeapon.name);
+        }
+
+        if (ownedWeapons.Contains(realWeapon))
+        {
+            Debug.Log("WeaponManager: Player already owns " + realWeapon.name);
+            EquipWeapon(ownedWeapons.IndexOf(realWeapon));
             return;
         }
+
+        if (ownedWeapons.Count < 2)
+        {
+            ownedWeapons.Add(realWeapon);
+            Debug.Log("WeaponManager: Added new weapon: " + realWeapon.name);
+        }
+        else
+        {
+            Debug.Log("WeaponManager: Replacing weapon in slot " + currentWeaponIndex + " with " + realWeapon.name);
+            ownedWeapons[currentWeaponIndex].SetActive(false);
+            ownedWeapons[currentWeaponIndex] = realWeapon;
+        }
+
+        EquipWeapon(ownedWeapons.IndexOf(realWeapon));
+
 
         if (ownedWeapons.Count < 2)
         {

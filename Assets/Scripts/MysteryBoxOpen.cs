@@ -41,6 +41,14 @@ public class MysteryBoxOpen : MonoBehaviour
         StartCoroutine(RollWeapons());
     }
 
+    public void BeginRoll()
+    {
+        Debug.Log("MysteryBoxOpen: BeginRoll() called manually.");
+        StopAllCoroutines(); // Safety
+        StartCoroutine(RollWeapons());
+    }
+
+
     IEnumerator RollWeapons()
     {
         openBox.SetActive(true);
@@ -82,7 +90,20 @@ public class MysteryBoxOpen : MonoBehaviour
             WeaponManager wm = FindObjectOfType<WeaponManager>();
             if (wm != null && currentWeapon != null)
             {
-                wm.AddWeapon(currentWeapon);
+                // Try to find the correct prefab reference from the WeaponManager's list
+                GameObject actualWeapon = wm.allWeaponObjects.Find(w => w.name == currentWeapon.name);
+
+                if (actualWeapon != null)
+                {
+                    Debug.Log("MysteryBoxOpen: Found matching prefab in allWeaponObjects: " + actualWeapon.name);
+                    wm.AddWeapon(actualWeapon);
+                }
+                else
+                {
+                    Debug.LogWarning("MysteryBoxOpen: No exact match found in allWeaponObjects! Using raw reference: " + currentWeapon.name);
+                    wm.AddWeapon(currentWeapon); // fallback just in case
+                }
+
                 Debug.Log("MysteryBoxOpen: Weapon added to player.");
             }
             else
@@ -174,7 +195,16 @@ public class MysteryBoxOpen : MonoBehaviour
         canAccept = false;
 
         openBox.SetActive(false);
-        closedBox.SetActive(true);
+        MysteryBoxClosed boxScript = closedBox.GetComponent<MysteryBoxClosed>();
+        if (boxScript != null)
+        {
+            boxScript.ReactivateBox();
+        }
+        else
+        {
+            closedBox.SetActive(true);
+        }
+
 
         Debug.Log("MysteryBoxOpen: Reset complete. Ready for next use.");
     }

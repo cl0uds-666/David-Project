@@ -1,28 +1,81 @@
 using UnityEngine;
+using TMPro;
 
 public class MysteryBoxClosed : MonoBehaviour
 {
-    public GameObject openBoxPrefab;
+    public GameObject openBox; // Assign the MysteryBoxOpen object here (not a prefab)
     public int cost = 950;
+
+    [Header("UI Prompt")]
+    public TextMeshProUGUI promptText;
 
     private PlayerPoints playerPoints;
     private bool isActive = false;
+    private bool playerInRange = false;
 
     void Start()
     {
         playerPoints = FindObjectOfType<PlayerPoints>();
+
+        if (promptText != null)
+        {
+            promptText.enabled = false;
+        }
     }
 
     void OnTriggerStay(Collider other)
     {
-        if (isActive) return;
+        if (isActive || !other.CompareTag("Player")) return;
+
+        if (promptText != null && !promptText.enabled)
+        {
+            promptText.text = $"Press [E] to roll the box ({cost})";
+            promptText.enabled = true;
+        }
 
         if (Input.GetKeyDown(KeyCode.E) && playerPoints != null && playerPoints.SpendPoints(cost))
         {
             isActive = true;
 
-            openBoxPrefab.SetActive(true);
-            gameObject.SetActive(false);
+            if (promptText != null)
+                promptText.enabled = false;
+
+            if (openBox != null)
+            {
+                openBox.SetActive(true);
+
+                MysteryBoxOpen openScript = openBox.GetComponent<MysteryBoxOpen>();
+                if (openScript != null)
+                {
+                    openScript.BeginRoll();
+                }
+                else
+                {
+                    Debug.LogWarning("MysteryBoxClosed: openBox is missing MysteryBoxOpen script!");
+                }
+            }
+
+            gameObject.SetActive(false); // Hide closed box
         }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+
+        playerInRange = false;
+
+        if (promptText != null)
+            promptText.enabled = false;
+    }
+
+    public void ReactivateBox()
+    {
+        isActive = false;
+
+        if (promptText != null)
+            promptText.enabled = false;
+
+        gameObject.SetActive(true);
     }
 }

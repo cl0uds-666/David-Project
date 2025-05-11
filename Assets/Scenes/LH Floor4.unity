@@ -6906,11 +6906,11 @@ MonoBehaviour:
   reloadRotation: {fileID: 2109676518}
   defaultRotation: {fileID: 546967556}
   reloadRotateSpeed: 5
-  aimPosition: {fileID: 0}
-  aimRotation: {fileID: 0}
+  aimPosition: {fileID: 501748474}
+  aimRotation: {fileID: 501748474}
   aimMoveSpeed: 10
   aimRotateSpeed: 10
-  ammoText: {fileID: 0}
+  ammoText: {fileID: 370659439}
 --- !u!1 &279558334
 GameObject:
   m_ObjectHideFlags: 0
@@ -18057,41 +18057,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 190214, guid: 19750885284d69344a35d6aac8aa99d1, type: 3}
   m_PrefabInstance: {fileID: 1150458254}
   m_PrefabAsset: {fileID: 0}
---- !u!65 &719640565
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 719640561}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2, y: 4, z: 2}
-  m_Center: {x: -0.66, y: 1.5, z: 0.0000008940697}
---- !u!114 &719640566
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 719640561}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 880dfdc89d150fb45b859a84c246e172, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  openBoxPrefab: {fileID: 2062181834}
-  cost: 950
 --- !u!1001 &728376253
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24503,7 +24468,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6440768939585094938, guid: 970bf01606e0c194281edb901a23dd06, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -29107,18 +29072,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Box Closed
       objectReference: {fileID: 0}
-    - target: {fileID: 190214, guid: 19750885284d69344a35d6aac8aa99d1, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 478962, guid: 19750885284d69344a35d6aac8aa99d1, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 478962, guid: 19750885284d69344a35d6aac8aa99d1, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 478962, guid: 19750885284d69344a35d6aac8aa99d1, type: 3}
       propertyPath: m_LocalPosition.x
       value: -21.406
@@ -29159,16 +29112,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1940666255622114172, guid: 19750885284d69344a35d6aac8aa99d1, type: 3}
+      propertyPath: openBox
+      value: 
+      objectReference: {fileID: 2062181834}
+    - target: {fileID: 1940666255622114172, guid: 19750885284d69344a35d6aac8aa99d1, type: 3}
+      propertyPath: promptText
+      value: 
+      objectReference: {fileID: 313139600}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 190214, guid: 19750885284d69344a35d6aac8aa99d1, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 719640566}
-    - targetCorrespondingSourceObject: {fileID: 190214, guid: 19750885284d69344a35d6aac8aa99d1, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 719640565}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 19750885284d69344a35d6aac8aa99d1, type: 3}
 --- !u!1001 &1151149959
 PrefabInstance:
@@ -53319,7 +53274,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
