@@ -29,7 +29,11 @@ public class MysteryBoxClosed : MonoBehaviour
 
         if (promptText != null && !promptText.enabled)
         {
-            promptText.text = $"Press [E] to roll the box ({cost})";
+            string costText = DoubleOrNothin.Instance != null
+                ? DoubleOrNothin.Instance.FormatCostText(cost)
+                : cost.ToString();
+
+            promptText.text = $"Press [E] to roll the box ({costText})";
             promptText.enabled = true;
         }
 
@@ -58,6 +62,7 @@ public class MysteryBoxClosed : MonoBehaviour
             gameObject.SetActive(false); // Hide closed box
         }
     }
+
 
     void OnTriggerExit(Collider other)
     {

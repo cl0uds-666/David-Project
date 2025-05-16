@@ -9,7 +9,11 @@ public class TimeRewindManager : MonoBehaviour
 
     private void Update()
     {
-        rewindables = FindObjectsOfType<MonoBehaviour>(true).OfType<IRewindable>().ToArray();
+        // Get all active IRewindable components from live MonoBehaviours only
+        rewindables = FindObjectsOfType<MonoBehaviour>(true)
+            .Where(m => m != null && m.gameObject != null)
+            .OfType<IRewindable>()
+            .ToArray();
 
         if (Input.GetKeyDown(rewindKey))
         {
@@ -28,19 +32,25 @@ public class TimeRewindManager : MonoBehaviour
 
         foreach (var rewindable in rewindables)
         {
-            if (rewindable == null) continue; // Skip destroyed/null objects
+            if (rewindable == null) continue;
 
-            if (isRewinding)
+            try
             {
-                rewindable.Rewind();
+                if (isRewinding)
+                {
+                    rewindable.Rewind();
+                }
+                else
+                {
+                    rewindable.Record();
+                }
             }
-            else
+            catch (MissingReferenceException)
             {
-                rewindable.Record();
+                // Swallow ghost reference from Unity destroying the object
             }
         }
     }
-
 
     private void StartRewind()
     {

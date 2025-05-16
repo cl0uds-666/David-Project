@@ -10,6 +10,7 @@ public class PlayerHealth : MonoBehaviour
     public float fadeSpeed = 2f; // Speed of fade in/out
     private bool isLowHealth = false;
 
+
     [Header("Health Settings")]
     public float maxHealth = 100f;
     [SerializeField] private float currentHealth;
@@ -18,6 +19,8 @@ public class PlayerHealth : MonoBehaviour
 
     private bool isRegenerating = false;
     public bool isInvincible = false; // Invincibility toggle
+    public bool isExplosionImmune = false;
+
 
     public Transform respawnPoint;
 
@@ -109,4 +112,12 @@ public class PlayerHealth : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         currentHealth = maxHealth;
     }
+
+    public void IncreaseMaxHealth(float amount)
+    {
+        maxHealth += amount;
+        currentHealth += amount; // heal player with the new amount
+        Debug.Log($"Max health increased to {maxHealth}");
+    }
+
 }

@@ -56,7 +56,6 @@ public class SMG : MonoBehaviour
             StartCoroutine(Reload());
         }
     }
-
     void Shoot()
     {
         currentAmmo--;
@@ -67,19 +66,26 @@ public class SMG : MonoBehaviour
         if (gunAudio != null && shootClip != null)
             gunAudio.PlayOneShot(shootClip);
 
-        RaycastHit hit;
         if (fpsCam != null)
         {
-            if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, range))
+            Ray ray = new Ray(fpsCam.transform.position, fpsCam.transform.forward);
+            RaycastHit[] hits = Physics.RaycastAll(ray, range);
+            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            float currentDamage = damage;
+            int maxPenetration = 5;
+
+            foreach (RaycastHit hitInfo in hits)
             {
-                EnemyHealth enemy = hit.transform.GetComponent<EnemyHealth>();
+                if (maxPenetration <= 0) break;
+
+                EnemyHealth enemy = hitInfo.transform.GetComponent<EnemyHealth>();
                 if (enemy != null)
                 {
                     PlayerPoints playerPoints = FindObjectOfType<PlayerPoints>();
-                    if (playerPoints != null)
-                        enemy.TakeDamage(damage, playerPoints);
-                    else
-                        enemy.TakeDamage(damage, null);
+                    enemy.TakeDamage(currentDamage, playerPoints);
+                    currentDamage *= 0.75f;
+                    maxPenetration--;
                 }
             }
         }

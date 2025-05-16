@@ -17,16 +17,21 @@ public class PlayerPoints : MonoBehaviour
         UpdatePointsUI();
     }
 
-    public bool SpendPoints(int cost)
+    public bool SpendPoints(int baseCost)
     {
-        if (points >= cost)
+        int finalCost = DoubleOrNothin.Instance != null
+            ? DoubleOrNothin.Instance.GetModifiedCost(baseCost)
+            : baseCost;
+
+        if (points >= finalCost)
         {
-            points -= cost;
+            points -= finalCost;
             UpdatePointsUI();
             return true;
         }
         return false;
     }
+
 
     void UpdatePointsUI()
     {

@@ -2,59 +2,67 @@ using UnityEngine;
 
 public class Grenade : MonoBehaviour
 {
-    [Header("Explosion Settings")]
-    public float delay = 2f;
+    public float delay = 3f;
     public float explosionRadius = 5f;
-    public float explosionForce = 500f;
-    public float damage = 100f;
+    public float explosionForce = 700f;
 
-    [Header("FX")]
-    public GameObject explosionEffectPrefab;
+    [Header("Damage Values")]
+    public float zombieDamage = 500f;
+    public float playerDamage = 50f;
 
+    public GameObject explosionEffect;
+
+    private float countdown;
     private bool hasExploded = false;
 
     void Start()
     {
-        Invoke(nameof(Explode), delay);
+        countdown = delay;
+    }
+
+    void Update()
+    {
+        countdown -= Time.deltaTime;
+        if (countdown <= 0f && !hasExploded)
+        {
+            Explode();
+            hasExploded = true;
+        }
     }
 
     void Explode()
     {
-        if (hasExploded) return;
-        hasExploded = true;
-
-        // Spawn VFX
-        if (explosionEffectPrefab != null)
+        // Spawn explosion effect
+        if (explosionEffect != null)
         {
-            Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            Instantiate(explosionEffect, transform.position, transform.rotation);
         }
 
-        // Find all colliders in range
-        Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
-        foreach (Collider nearby in hits)
+        Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
+
+        foreach (Collider nearby in colliders)
         {
-            // Apply force
-            Rigidbody rb = nearby.attachedRigidbody;
+            Rigidbody rb = nearby.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.AddExplosionForce(explosionForce, transform.position, explosionRadius);
             }
 
-            // Apply damage
+            // Damage enemies
             EnemyHealth enemy = nearby.GetComponent<EnemyHealth>();
             if (enemy != null)
             {
-                enemy.TakeDamage(damage, FindObjectOfType<PlayerPoints>()); // or null if no points
+                enemy.TakeDamage(zombieDamage, FindObjectOfType<PlayerPoints>());
+            }
+
+            // Damage player (unless immune)
+            PlayerHealth player = nearby.GetComponent<PlayerHealth>();
+            if (player != null && !player.isExplosionImmune)
+            {
+                player.TakeDamage(playerDamage);
             }
         }
 
-        // Clean up
         Destroy(gameObject);
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-       
-        // Explode();
     }
 }

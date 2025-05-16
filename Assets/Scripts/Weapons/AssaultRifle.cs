@@ -69,13 +69,22 @@ public class AssaultRifle : MonoBehaviour
             return;
         }
 
-        if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
+        if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire && currentAmmo > 0)
         {
             nextTimeToFire = Time.time + 1f / fireRate;
             Shoot();
         }
-    }
 
+        // Stop looped gun audio if fire released or no ammo
+        if (Input.GetButtonUp("Fire1") || currentAmmo <= 0)
+        {
+            if (gunAudio.isPlaying && gunAudio.clip == shootClip)
+            {
+                gunAudio.Stop();
+                gunAudio.loop = false;
+            }
+        }
+    }
     void Shoot()
     {
         if (currentAmmo <= 0) return;
@@ -94,24 +103,33 @@ public class AssaultRifle : MonoBehaviour
             lightFlicker.StartFlicker();
         }
 
-        if (gunAudio != null && shootClip != null)
+        if (gunAudio != null && shootClip != null && !gunAudio.isPlaying)
         {
-            gunAudio.PlayOneShot(shootClip);
+            gunAudio.clip = shootClip;
+            gunAudio.loop = true;
+            gunAudio.Play();
         }
 
-        RaycastHit hit;
         if (fpsCam != null)
         {
-            if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, range))
+            Ray ray = new Ray(fpsCam.transform.position, fpsCam.transform.forward);
+            RaycastHit[] hits = Physics.RaycastAll(ray, range);
+            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            float currentDamage = damage;
+            int maxPenetration = 5;
+
+            foreach (RaycastHit hitInfo in hits)
             {
-                EnemyHealth enemy = hit.transform.GetComponent<EnemyHealth>();
+                if (maxPenetration <= 0) break;
+
+                EnemyHealth enemy = hitInfo.transform.GetComponent<EnemyHealth>();
                 if (enemy != null)
                 {
                     PlayerPoints playerPoints = FindObjectOfType<PlayerPoints>();
-                    if (playerPoints != null)
-                    {
-                        enemy.TakeDamage(damage, playerPoints);
-                    }
+                    enemy.TakeDamage(currentDamage, playerPoints);
+                    currentDamage *= 0.75f;
+                    maxPenetration--;
                 }
             }
         }
@@ -122,6 +140,7 @@ public class AssaultRifle : MonoBehaviour
 
         UpdateAmmoUI();
     }
+
 
     IEnumerator StopMuzzleFlash()
     {
@@ -136,14 +155,18 @@ public class AssaultRifle : MonoBehaviour
         isReloading = true;
         Debug.Log("Reloading...");
 
+        if (gunAudio.isPlaying && gunAudio.clip == shootClip)
+        {
+            gunAudio.Stop();
+            gunAudio.loop = false;
+        }
+
         if (gunAudio != null && reloadClip != null)
         {
             gunAudio.PlayOneShot(reloadClip);
         }
 
-        // Move to reload position + rotate
         yield return StartCoroutine(MoveGun(modelTransform, reloadPosition.localPosition, reloadRotation.localRotation));
-
         yield return new WaitForSeconds(reloadTime);
 
         int ammoNeeded = maxAmmo - currentAmmo;
@@ -152,7 +175,6 @@ public class AssaultRifle : MonoBehaviour
         currentAmmo += ammoToReload;
         currentReserveAmmo -= ammoToReload;
 
-        // Move back to default position + rotate
         yield return StartCoroutine(MoveGun(modelTransform, defaultPosition.localPosition, defaultRotation.localRotation));
 
         isReloading = false;
@@ -174,7 +196,7 @@ public class AssaultRifle : MonoBehaviour
 
     void HandleAiming()
     {
-        if (Input.GetButton("Fire2")) // Right Mouse Button held
+        if (Input.GetButton("Fire2"))
         {
             isAiming = true;
         }

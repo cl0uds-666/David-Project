@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+
 
 public class DoorInteract : MonoBehaviour
 {
@@ -6,6 +8,7 @@ public class DoorInteract : MonoBehaviour
     private PlayerPoints playerPoints;
     private UIManager uiManager;
     private bool playerInRange = false;
+    private bool isOpening = false;
 
     private void Start()
     {
@@ -19,7 +22,11 @@ public class DoorInteract : MonoBehaviour
             playerInRange = true;
             playerPoints = other.GetComponent<PlayerPoints>();
 
-            uiManager.ShowPrompt($"Press E to Open Door - {cost}");
+            string priceText = DoubleOrNothin.Instance != null
+                ? DoubleOrNothin.Instance.FormatCostText(cost)
+                : cost.ToString();
+
+            uiManager.ShowPrompt($"Press E to Open Door - {priceText}");
         }
     }
 
@@ -36,7 +43,7 @@ public class DoorInteract : MonoBehaviour
 
     private void Update()
     {
-        if (playerInRange && Input.GetKeyDown(KeyCode.E))
+        if (playerInRange && Input.GetKeyDown(KeyCode.E) && !isOpening)
         {
             TryOpenDoor();
         }
@@ -56,9 +63,43 @@ public class DoorInteract : MonoBehaviour
 
     private void OpenDoor()
     {
-        Debug.Log("Door opened.");
+        Debug.Log("Door opening animation triggered.");
+        isOpening = true;
+        uiManager.HidePrompt();
 
-        uiManager.HidePrompt(); // FORCED prompt clear always
+        StartCoroutine(DoorWiggleThenFly());
+    }
+
+    private IEnumerator DoorWiggleThenFly()
+    {
+        Vector3 originalPosition = transform.position;
+        float wiggleDuration = 1f;
+        float wiggleSpeed = 20f;
+        float wiggleAmount = 10f;
+
+        float elapsed = 0f;
+        while (elapsed < wiggleDuration)
+        {
+            float rotationOffset = Mathf.Sin(elapsed * wiggleSpeed) * wiggleAmount;
+            transform.localRotation = Quaternion.Euler(rotationOffset, 0f, 0f);
+
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = originalPosition;
+
+        float liftSpeed = 10f;
+        float liftDuration = 1f;
+        float liftElapsed = 0f;
+
+        while (liftElapsed < liftDuration)
+        {
+            transform.position += Vector3.up * liftSpeed * Time.deltaTime;
+            liftElapsed += Time.deltaTime;
+            yield return null;
+        }
 
         gameObject.SetActive(false);
     }

@@ -27,16 +27,38 @@ public class WallBuy : MonoBehaviour
             playerPoints = other.GetComponent<PlayerPoints>();
             weaponManager = other.GetComponent<WeaponManager>();
 
+            if (DoubleOrNothin.Instance == null)
+            {
+                Debug.LogWarning("DoubleOrNothin instance not found!");
+            }
+
             if (weaponManager != null && weaponManager.HasWeapon(weaponObject))
             {
-                uiManager.ShowPrompt($"Press E to Refill Ammo - {ammoCost}");
+                int displayCost = DoubleOrNothin.Instance != null
+                    ? DoubleOrNothin.Instance.GetModifiedCost(ammoCost)
+                    : ammoCost;
+
+                string costText = DoubleOrNothin.Instance != null
+                    ? DoubleOrNothin.Instance.FormatCostText(ammoCost)
+                    : ammoCost.ToString();
+
+                uiManager.ShowPrompt($"Press E to Refill Ammo - {costText}");
             }
             else
             {
-                uiManager.ShowPrompt($"Press E to Buy {weaponName} - {weaponCost}");
+                int displayCost = DoubleOrNothin.Instance != null
+                    ? DoubleOrNothin.Instance.GetModifiedCost(weaponCost)
+                    : weaponCost;
+
+                string costText = DoubleOrNothin.Instance != null
+                    ? DoubleOrNothin.Instance.FormatCostText(weaponCost)
+                    : weaponCost.ToString();
+
+                uiManager.ShowPrompt($"Press E to Buy {weaponName} - {costText}");
             }
         }
     }
+
 
     private void OnTriggerExit(Collider other)
     {

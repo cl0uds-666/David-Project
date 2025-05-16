@@ -101,23 +101,26 @@ public class Pistol : MonoBehaviour
             gunAudio.PlayOneShot(shootClip);
         }
 
-        RaycastHit hit;
         if (fpsCam != null)
         {
-            if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, range))
+            Ray ray = new Ray(fpsCam.transform.position, fpsCam.transform.forward);
+            RaycastHit[] hits = Physics.RaycastAll(ray, range);
+            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            int maxPenetration = 5;
+            float currentDamage = damage;
+
+            foreach (RaycastHit hitInfo in hits) // fixed name conflict
             {
-                EnemyHealth enemy = hit.transform.GetComponent<EnemyHealth>();
+                if (maxPenetration <= 0) break;
+
+                EnemyHealth enemy = hitInfo.transform.GetComponent<EnemyHealth>();
                 if (enemy != null)
                 {
                     PlayerPoints playerPoints = FindObjectOfType<PlayerPoints>();
-                    if (playerPoints != null)
-                    {
-                        enemy.TakeDamage(damage, playerPoints);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("PlayerPoints system not found!");
-                    }
+                    enemy.TakeDamage(currentDamage, playerPoints);
+                    currentDamage *= 0.75f;
+                    maxPenetration--;
                 }
             }
         }
@@ -128,6 +131,7 @@ public class Pistol : MonoBehaviour
 
         UpdateAmmoUI();
     }
+
 
     IEnumerator StopMuzzleFlash()
     {

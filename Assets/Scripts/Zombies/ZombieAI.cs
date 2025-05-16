@@ -24,6 +24,10 @@ public class ZombieAI : MonoBehaviour
     public float maxSoundInterval = 8f;
     private float nextSoundTime;
 
+    [Header("Speed Scaling")]
+    public float baseSpeed = 1.5f;
+    public float speedIncreasePerRound = 0.15f;
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -36,29 +40,59 @@ public class ZombieAI : MonoBehaviour
 
         // Set first random sound time
         nextSoundTime = Time.time + Random.Range(minSoundInterval, maxSoundInterval);
+
+        // Get round number
+        int round = FindObjectOfType<ZombieSpawner>()?.GetCurrentRound() ?? 1;
+
+        float finalSpeed = baseSpeed;
+
+        // Determine if this zombie should sprint
+        bool shouldSprint = false;
+
+        if (round >= 5 && round < 15)
+        {
+            float sprintChance = Mathf.InverseLerp(5f, 15f, round) * 100f;
+            shouldSprint = Random.Range(0f, 100f) <= sprintChance;
+            if (shouldSprint)
+                finalSpeed = 6f;
+        }
+        else if (round >= 15 && round < 20)
+        {
+            shouldSprint = true;
+            finalSpeed = 6f;
+        }
+        else if (round >= 20)
+        {
+            shouldSprint = true;
+            finalSpeed = 9f;
+        }
+        else
+        {
+            shouldSprint = false;
+            finalSpeed = baseSpeed + (round - 1) * speedIncreasePerRound;
+        }
+
+        agent.speed = finalSpeed;
     }
+
 
     void Update()
     {
         if (isDead || agent == null || !agent.enabled) return;
 
         RaycastHit hit;
-        if (Physics.Raycast(transform.position + Vector3.up * 0.6f,   // eye‑height
-                            transform.forward,
-                            out hit,
-                            1.2f))
+        if (Physics.Raycast(transform.position + Vector3.up * 0.6f, transform.forward, out hit, 1.2f))
         {
             BarrierWindow window = hit.transform.GetComponentInParent<BarrierWindow>();
             if (window != null && window.HasAnyPlanks())
             {
-                agent.isStopped = true;          // stop walking while ripping
-                window.ZombieStartRemoving();    // start coroutine on window
-                return;                          // skip rest of Update this frame
+                agent.isStopped = true;
+                window.ZombieStartRemoving();
+                return;
             }
         }
         else
         {
-            // make sure the agent can move again after planks are gone
             agent.isStopped = false;
         }
 
@@ -82,7 +116,6 @@ public class ZombieAI : MonoBehaviour
                 }
             }
 
-            // Check if the zombie is close enough to attack
             if (Vector3.Distance(transform.position, target.position) <= attackRange)
             {
                 TryAttack();
@@ -108,7 +141,6 @@ public class ZombieAI : MonoBehaviour
             }
         }
     }
-
 
     void PlayRandomZombieSound()
     {

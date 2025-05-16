@@ -5,11 +5,11 @@ using System.Collections.Generic;
 public class MysteryBoxOpen : MonoBehaviour
 {
     [Header("Box References")]
-    public GameObject closedBox;                    // Assign your closed box in scene
-    public GameObject openBox;                      // Assign your open box in scene
+    public GameObject closedBox;
+    public GameObject openBox;
 
     [Header("Weapon Settings")]
-    public List<GameObject> weaponObjects;          // Directly assign weapons (no slot parents)
+    public List<GameObject> weaponObjects;
     public float timeBetweenRises = 0.5f;
     public float riseHeight = 0.5f;
     public float riseSpeed = 2f;
@@ -17,6 +17,10 @@ public class MysteryBoxOpen : MonoBehaviour
 
     [Header("Controls")]
     public KeyCode acceptKey = KeyCode.F;
+
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip boxOpenSound;
 
     private GameObject currentWeapon;
     private bool canAccept = false;
@@ -48,11 +52,17 @@ public class MysteryBoxOpen : MonoBehaviour
         StartCoroutine(RollWeapons());
     }
 
-
     IEnumerator RollWeapons()
     {
         openBox.SetActive(true);
         closedBox.SetActive(false);
+
+        //Play mystery box sound
+        if (audioSource != null && boxOpenSound != null)
+        {
+            audioSource.clip = boxOpenSound;
+            audioSource.Play();
+        }
 
         Debug.Log("MysteryBoxOpen: Box opened, cycling weapons...");
 
@@ -90,7 +100,6 @@ public class MysteryBoxOpen : MonoBehaviour
             WeaponManager wm = FindObjectOfType<WeaponManager>();
             if (wm != null && currentWeapon != null)
             {
-                // Try to find the correct prefab reference from the WeaponManager's list
                 GameObject actualWeapon = wm.allWeaponObjects.Find(w => w.name == currentWeapon.name);
 
                 if (actualWeapon != null)
@@ -204,7 +213,6 @@ public class MysteryBoxOpen : MonoBehaviour
         {
             closedBox.SetActive(true);
         }
-
 
         Debug.Log("MysteryBoxOpen: Reset complete. Ready for next use.");
     }
