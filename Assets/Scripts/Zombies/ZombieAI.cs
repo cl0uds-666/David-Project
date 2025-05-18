@@ -8,6 +8,8 @@ public class ZombieAI : MonoBehaviour
     private float nextPathUpdateTime = 0f;
     private float pathUpdateInterval = 0.2f;
     private bool isDead = false;
+    private bool isPaused = false;
+
 
     public float randomOffsetRange = 2f;
 
@@ -78,7 +80,7 @@ public class ZombieAI : MonoBehaviour
 
     void Update()
     {
-        if (isDead || agent == null || !agent.enabled) return;
+        if (isDead || isPaused || agent == null || !agent.enabled) return;
 
         RaycastHit hit;
         if (Physics.Raycast(transform.position + Vector3.up * 0.6f, transform.forward, out hit, 1.2f))
@@ -124,6 +126,17 @@ public class ZombieAI : MonoBehaviour
 
         PlayRandomZombieSound();
     }
+
+    public void SetPaused(bool paused)
+    {
+        isPaused = paused;
+
+        if (paused && agent != null)
+            agent.isStopped = true;
+        else if (agent != null)
+            agent.isStopped = false;
+    }
+
 
     void TryAttack()
     {

@@ -80,19 +80,38 @@ public class EnemyHealth : MonoBehaviour
     {
         if (isDead) return;
 
+        if (PowerupEffects.Instance != null && PowerupEffects.Instance.IsInstaKill())
+        {
+            amount = currentHealth + 1f;
+            Debug.Log("Insta-Kill applied to: " + gameObject.name);
+        }
+
+
         currentHealth -= amount;
 
         if (playerPoints != null)
-            playerPoints.AddPoints(pointsPerHit);
+        {
+            int hitPoints = PowerupEffects.Instance != null && PowerupEffects.Instance.IsDoublePoints()
+                ? pointsPerHit * 2
+                : pointsPerHit;
+
+            playerPoints.AddPoints(hitPoints);
+        }
+
 
         // --- Spawn floating hit marker ---
         if (hitMarkerPrefab != null)
-        {
-            GameObject marker = Instantiate(hitMarkerPrefab, transform.position + Vector3.up * 1.5f, Quaternion.identity);
-            HitMarkerWorld hm = marker.GetComponent<HitMarkerWorld>();
-            if (hm != null)
-                hm.SetPoints(pointsPerHit);
-        }
+            if (hitMarkerPrefab != null)
+            {
+                int hitPoints = PowerupEffects.Instance != null && PowerupEffects.Instance.IsDoublePoints()
+                    ? pointsPerHit * 2
+                    : pointsPerHit;
+
+                GameObject marker = Instantiate(hitMarkerPrefab, transform.position + Vector3.up * 1.5f, Quaternion.identity);
+                HitMarkerWorld hm = marker.GetComponent<HitMarkerWorld>();
+                if (hm != null)
+                    hm.SetPoints(hitPoints);
+            }
 
         // --- Spawn blood FX ---
         if (bloodFXPrefab != null)
@@ -120,11 +139,32 @@ public class EnemyHealth : MonoBehaviour
         if (animator != null) animator.enabled = false;
 
         SetRagdollState(true);
+        PowerupSpawner spawner = FindObjectOfType<PowerupSpawner>();
+        if (spawner != null)
+        {
+            spawner.TrySpawnPowerup(transform.position);
+        }
+
 
         if (playerPoints != null)
         {
-            playerPoints.AddPoints(pointsOnKill);
+            int killPoints = PowerupEffects.Instance != null && PowerupEffects.Instance.IsDoublePoints()
+                ? pointsOnKill * 2
+                : pointsOnKill;
+
+            playerPoints.AddPoints(killPoints);
+
+            // Show floating marker for kill points
+            if (hitMarkerPrefab != null)
+            {
+                GameObject marker = Instantiate(hitMarkerPrefab, transform.position + Vector3.up * 2f, Quaternion.identity);
+                HitMarkerWorld hm = marker.GetComponent<HitMarkerWorld>();
+                if (hm != null)
+                    hm.SetPoints(killPoints);
+            }
         }
+
+
 
         Destroy(gameObject, 10f);
     }

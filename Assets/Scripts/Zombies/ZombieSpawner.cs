@@ -12,6 +12,8 @@ public class ZombieSpawner : MonoBehaviour
 
     [Header("Round UI")]
     public TextMeshProUGUI roundText;
+    [SerializeField] private UIManager uiManager;
+
 
     private int currentRound = 0;
     private int killsNeeded = 0;   // player kills required this round
@@ -20,6 +22,8 @@ public class ZombieSpawner : MonoBehaviour
 
     void Start()
     {
+        uiManager = FindObjectOfType<UIManager>();
+
         StartNextRound();
     }
 
@@ -27,7 +31,12 @@ public class ZombieSpawner : MonoBehaviour
     void StartNextRound()
     {
         currentRound++;
-        roundText.text = "Round " + currentRound;
+
+        if (uiManager != null)
+            uiManager.SetRound(currentRound);
+        else
+            roundText.text = "Round " + currentRound;
+
 
         killsNeeded = baseZombiesPerRound + (currentRound * 2);
         killsSoFar = 0;
@@ -78,8 +87,13 @@ public class ZombieSpawner : MonoBehaviour
 
     IEnumerator WaitForNextRound()
     {
-        yield return new WaitForSeconds(3f);
+        if (uiManager != null)
+            yield return uiManager.PulseUntilRoundStart(5f, currentRound + 1);
+        else
+            yield return new WaitForSeconds(5f);
+
         StartNextRound();
+
     }
 
     public int GetCurrentRound()

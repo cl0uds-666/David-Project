@@ -6,7 +6,7 @@ public class WeaponManager : MonoBehaviour
     [Header("Weapons Setup")]
     public List<GameObject> allWeaponObjects; // All weapons already on the player, disabled by default
 
-    private List<GameObject> ownedWeapons = new List<GameObject>();
+    public List<GameObject> ownedWeapons = new List<GameObject>();
     private int currentWeaponIndex = 0;
 
     void Start()
@@ -36,26 +36,33 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
-        // Try to match against known weapon references
+        // Match against actual weapon prefab
         GameObject realWeapon = allWeaponObjects.Find(w => w.name == weaponObject.name);
 
         if (realWeapon == null)
         {
-            Debug.LogWarning("WeaponManager: MysteryBox weapon not found in allWeaponObjects. Trying to add it anyway...");
+            Debug.LogWarning("WeaponManager: MysteryBox weapon not found in allWeaponObjects. Using raw reference.");
             realWeapon = weaponObject;
         }
-        else
-        {
-            Debug.Log("WeaponManager: Using matched prefab from allWeaponObjects: " + realWeapon.name);
-        }
 
+        // If player already owns it, refill its ammo and equip
         if (ownedWeapons.Contains(realWeapon))
         {
-            Debug.Log("WeaponManager: Player already owns " + realWeapon.name);
+            Debug.Log("WeaponManager: Player already owns " + realWeapon.name + ". Refilling ammo.");
+
+            if (realWeapon.TryGetComponent(out MonoBehaviour gunScript))
+            {
+                var refill = gunScript.GetType().GetMethod("RefillAmmo");
+                Debug.Log("Attempting to refill: " + realWeapon.name + " | Active: " + realWeapon.activeInHierarchy);
+
+                refill?.Invoke(gunScript, null);
+            }
+
             EquipWeapon(ownedWeapons.IndexOf(realWeapon));
             return;
         }
 
+        // Otherwise, add or replace
         if (ownedWeapons.Count < 2)
         {
             ownedWeapons.Add(realWeapon);
@@ -69,25 +76,11 @@ public class WeaponManager : MonoBehaviour
         }
 
         EquipWeapon(ownedWeapons.IndexOf(realWeapon));
-
-
-        if (ownedWeapons.Count < 2)
-        {
-            ownedWeapons.Add(weaponObject);
-            Debug.Log("WeaponManager: Added new weapon: " + weaponObject.name);
-        }
-        else
-        {
-            Debug.Log("WeaponManager: Replacing weapon in slot " + currentWeaponIndex + " with " + weaponObject.name);
-            ownedWeapons[currentWeaponIndex].SetActive(false);
-            ownedWeapons[currentWeaponIndex] = weaponObject;
-        }
-
-        EquipWeapon(ownedWeapons.IndexOf(weaponObject));
-        Debug.Log("WeaponManager: Equipped weapon: " + weaponObject.name);
+        RefillUnusedWeapons(); // Refill everything else you're not holding
     }
 
-    private void EquipWeapon(int slot)
+
+    public void EquipWeapon(int slot)
     {
         if (slot < 0 || slot >= ownedWeapons.Count)
         {
@@ -104,6 +97,24 @@ public class WeaponManager : MonoBehaviour
         ownedWeapons[slot].SetActive(true);
         currentWeaponIndex = slot;
     }
+
+    public void RefillUnusedWeapons()
+    {
+        foreach (GameObject weapon in allWeaponObjects)
+        {
+            if (weapon == null) continue;
+
+            // Skip weapons the player currently owns
+            if (ownedWeapons.Contains(weapon)) continue;
+
+            if (weapon.TryGetComponent(out MonoBehaviour gunScript))
+            {
+                var refill = gunScript.GetType().GetMethod("RefillAmmo");
+                refill?.Invoke(gunScript, null);
+            }
+        }
+    }
+
 
     private void SwitchToSlot(int slot)
     {

@@ -8,6 +8,7 @@ TagManager:
   - Zombie
   - Door
   - Window
+  - Powerup
   layers:
   - Default
   - TransparentFX

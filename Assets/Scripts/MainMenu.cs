@@ -1,56 +1,79 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    [Header("Panels")]
-    public GameObject mainPanel;      // Play • Options • Quit
-    public GameObject optionsPanel;   // Sliders + Back
-
-    [Header("Sliders")]
-    public Slider volumeSlider;
-    public Slider sensSlider;
+    [Header("UI Panels")]
+    public GameObject mainPanel;
+    public GameObject optionsPanel;
+    public GameObject quickGuidePanel;
 
     void Start()
     {
-        // fetch saved prefs
-        float vol = PlayerPrefs.GetFloat("MasterVol", 0.8f);
-        float sens = PlayerPrefs.GetFloat("LookSens", 0.5f);
-
-        volumeSlider.value = vol;
-        sensSlider.value = sens;
-        AudioListener.volume = vol;
+        ShowMain();
     }
 
-    // ------------ main ------------
-    public void PlayGame() => SceneManager.LoadScene(1);
-    public void QuitGame()
+    // -------------------------------
+    // Main Buttons
+    // -------------------------------
+    public void PlayGame()
     {
-        Application.Quit();
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#endif
+        SceneManager.LoadScene("GameScene"); // Replace with your actual game scene name
     }
+
     public void OpenOptions()
     {
         mainPanel.SetActive(false);
         optionsPanel.SetActive(true);
     }
 
-    // ----------- options ----------
-    public void Back()
+    public void OpenQuickGuide()
+    {
+        mainPanel.SetActive(false);
+        quickGuidePanel.SetActive(true);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+        Debug.Log("Game Quit");
+    }
+
+    // -------------------------------
+    // Quick Guide Buttons
+    // -------------------------------
+    public void OpenPerksGuide()
+    {
+        SceneManager.LoadScene("QuickGuide_Perks"); // You can replace this with a UI panel instead
+    }
+
+    public void OpenDropsGuide()
+    {
+        SceneManager.LoadScene("QuickGuide_Drops"); // You can replace this with a UI panel instead
+    }
+
+    public void BackFromQuickGuide()
+    {
+        quickGuidePanel.SetActive(false);
+        mainPanel.SetActive(true);
+    }
+
+    // -------------------------------
+    // Options Back Button
+    // -------------------------------
+    public void BackFromOptions()
     {
         optionsPanel.SetActive(false);
         mainPanel.SetActive(true);
     }
-    public void OnVolChanged(float v)
+
+    // -------------------------------
+    // Reset
+    // -------------------------------
+    private void ShowMain()
     {
-        AudioListener.volume = v;
-        PlayerPrefs.SetFloat("MasterVol", v);
-    }
-    public void OnSensChanged(float s)
-    {
-        PlayerPrefs.SetFloat("LookSens", s);
+        mainPanel.SetActive(true);
+        optionsPanel.SetActive(false);
+        quickGuidePanel.SetActive(false);
     }
 }

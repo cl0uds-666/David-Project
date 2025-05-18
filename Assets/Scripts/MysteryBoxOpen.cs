@@ -105,20 +105,35 @@ public class MysteryBoxOpen : MonoBehaviour
                 if (actualWeapon != null)
                 {
                     Debug.Log("MysteryBoxOpen: Found matching prefab in allWeaponObjects: " + actualWeapon.name);
-                    wm.AddWeapon(actualWeapon);
+
+                    if (wm.ownedWeapons.Contains(actualWeapon))
+                    {
+                        Debug.Log("MysteryBoxOpen: Player already owns this weapon. Refilling ammo.");
+
+                        if (actualWeapon.TryGetComponent(out MonoBehaviour gunScript))
+                        {
+                            var refill = gunScript.GetType().GetMethod("RefillAmmo");
+                            refill?.Invoke(gunScript, null);
+                        }
+
+                        wm.EquipWeapon(wm.ownedWeapons.IndexOf(actualWeapon));
+                    }
+                    else
+                    {
+                        wm.AddWeapon(actualWeapon);
+                        wm.RefillUnusedWeapons(); // Refill all other guns
+                    }
                 }
                 else
                 {
                     Debug.LogWarning("MysteryBoxOpen: No exact match found in allWeaponObjects! Using raw reference: " + currentWeapon.name);
-                    wm.AddWeapon(currentWeapon); // fallback just in case
+                    wm.AddWeapon(currentWeapon); // fallback
+                    wm.RefillUnusedWeapons();
                 }
 
-                Debug.Log("MysteryBoxOpen: Weapon added to player.");
+                Debug.Log("MysteryBoxOpen: Weapon logic completed.");
             }
-            else
-            {
-                Debug.LogWarning("MysteryBoxOpen: WeaponManager or currentWeapon missing!");
-            }
+
 
             canAccept = false;
             StartCoroutine(LowerAndReset());

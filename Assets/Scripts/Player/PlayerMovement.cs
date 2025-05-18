@@ -69,7 +69,9 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = transform.right * x + transform.forward * z;
 
         // Sprinting
-        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed;
+        float currentSpeed = Input.GetKey(KeyCode.LeftShift)
+            ? sprintSpeed * SwiftShotPerk.SprintMultiplier
+            : walkSpeed;
 
         controller.Move(move * currentSpeed * Time.deltaTime);
 

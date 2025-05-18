@@ -80,6 +80,15 @@ public class GrenadeLauncher : MonoBehaviour
         UpdateAmmoUI();
     }
 
+    public void RefillAmmo()
+    {
+        currentAmmo = maxAmmo;
+        currentReserveAmmo = maxReserveAmmo;
+        Debug.Log("RefillAmmo() called on " + gameObject.name);
+
+        UpdateAmmoUI();
+    }
+
     IEnumerator Reload()
     {
         if (currentReserveAmmo <= 0 || currentAmmo == maxAmmo) yield break;
@@ -89,7 +98,8 @@ public class GrenadeLauncher : MonoBehaviour
         if (gunAudio != null && reloadClip != null)
             gunAudio.PlayOneShot(reloadClip);
 
-        yield return new WaitForSeconds(reloadTime);
+        float adjustedReloadTime = reloadTime * SwiftShotPerk.ReloadMultiplier;
+        yield return new WaitForSeconds(adjustedReloadTime);
 
         int ammoNeeded = maxAmmo - currentAmmo;
         int ammoToReload = Mathf.Min(ammoNeeded, currentReserveAmmo);
