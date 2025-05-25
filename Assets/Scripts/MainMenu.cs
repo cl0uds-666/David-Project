@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
@@ -7,9 +8,21 @@ public class MainMenu : MonoBehaviour
     public GameObject mainPanel;
     public GameObject optionsPanel;
     public GameObject quickGuidePanel;
+    public GameObject creditsPanel;
+
+    [Header("Sliders")]
+    public Slider volumeSlider;
+    public Slider sensSlider;
 
     void Start()
     {
+        float vol = PlayerPrefs.GetFloat("MasterVol", 0.8f);
+        float sens = PlayerPrefs.GetFloat("LookSens", 0.5f);
+
+        volumeSlider.value = vol;
+        sensSlider.value = sens;
+        AudioListener.volume = vol;
+
         ShowMain();
     }
 
@@ -18,7 +31,7 @@ public class MainMenu : MonoBehaviour
     // -------------------------------
     public void PlayGame()
     {
-        SceneManager.LoadScene("GameScene"); // Replace with your actual game scene name
+        SceneManager.LoadScene("LH Floor4");
     }
 
     public void OpenOptions()
@@ -33,10 +46,18 @@ public class MainMenu : MonoBehaviour
         quickGuidePanel.SetActive(true);
     }
 
+    public void OpenCredits()
+    {
+        mainPanel.SetActive(false);
+        creditsPanel.SetActive(true);
+    }
+
     public void QuitGame()
     {
         Application.Quit();
-        Debug.Log("Game Quit");
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 
     // -------------------------------
@@ -44,12 +65,12 @@ public class MainMenu : MonoBehaviour
     // -------------------------------
     public void OpenPerksGuide()
     {
-        SceneManager.LoadScene("QuickGuide_Perks"); // You can replace this with a UI panel instead
+        SceneManager.LoadScene("QuickGuide_Perks");
     }
 
     public void OpenDropsGuide()
     {
-        SceneManager.LoadScene("QuickGuide_Drops"); // You can replace this with a UI panel instead
+        SceneManager.LoadScene("QuickGuide_Drops");
     }
 
     public void BackFromQuickGuide()
@@ -59,7 +80,7 @@ public class MainMenu : MonoBehaviour
     }
 
     // -------------------------------
-    // Options Back Button
+    // Options
     // -------------------------------
     public void BackFromOptions()
     {
@@ -67,13 +88,34 @@ public class MainMenu : MonoBehaviour
         mainPanel.SetActive(true);
     }
 
+    public void OnVolChanged(float v)
+    {
+        AudioListener.volume = v;
+        PlayerPrefs.SetFloat("MasterVol", v);
+    }
+
+    public void OnSensChanged(float s)
+    {
+        PlayerPrefs.SetFloat("LookSens", s);
+    }
+
     // -------------------------------
-    // Reset
+    // Credits
+    // -------------------------------
+    public void BackFromCredits()
+    {
+        creditsPanel.SetActive(false);
+        mainPanel.SetActive(true);
+    }
+
+    // -------------------------------
+    // Reset View
     // -------------------------------
     private void ShowMain()
     {
         mainPanel.SetActive(true);
         optionsPanel.SetActive(false);
         quickGuidePanel.SetActive(false);
+        creditsPanel.SetActive(false);
     }
 }

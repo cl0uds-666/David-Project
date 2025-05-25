@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using TMPro;
+using System.Collections.Generic;
+using System.Linq;
+
 
 public class ZombieSpawner : MonoBehaviour
 {
@@ -57,6 +60,28 @@ public class ZombieSpawner : MonoBehaviour
 
     void SpawnZombie()
     {
+        Transform player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        if (player == null || spawnPoints.Length < 3)
+        {
+            Debug.LogWarning("ZombieSpawner: No player found or not enough spawn points. Spawning at random.");
+            SpawnAtRandom();
+            return;
+        }
+
+        var nearestSpawns = GetClosestSpawnPoints(player.position, 3);
+        Transform sp = nearestSpawns[Random.Range(0, nearestSpawns.Count)];
+
+        GameObject z = Instantiate(zombiePrefab, sp.position, sp.rotation);
+
+        EnemyHealth eh = z.GetComponent<EnemyHealth>();
+        eh.onDeath += ZombieDied;
+
+        aliveZombies++;
+    }
+
+
+    void SpawnAtRandom()
+    {
         Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
         GameObject z = Instantiate(zombiePrefab, sp.position, sp.rotation);
 
@@ -99,5 +124,13 @@ public class ZombieSpawner : MonoBehaviour
     public int GetCurrentRound()
     {
         return currentRound;
+    }
+
+    public List<Transform> GetClosestSpawnPoints(Vector3 playerPosition, int count)
+    {
+        return spawnPoints
+            .OrderBy(sp => Vector3.Distance(sp.position, playerPosition))
+            .Take(count)
+            .ToList();
     }
 }
